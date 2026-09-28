@@ -18,6 +18,7 @@ use App\Repository\PostRepository;
 use App\Security\PostVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +27,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Controller used to manage blog contents in the backend.
@@ -58,8 +60,12 @@ final class BlogController extends AbstractController
     public function index(
         #[CurrentUser] User $user,
         PostRepository $posts,
+        HttpClientInterface $httpClient,
+        #[Autowire(env: 'ANALYTICS_API_KEY')] string $analyticsApiKey,
     ): Response {
         $authorPosts = $posts->findBy(['author' => $user], ['publishedAt' => 'DESC']);
+
+        $httpClient->request('GET', 'https://my-analytics.com', ['auth_bearer' => $analyticsApiKey]);
 
         return $this->render('admin/blog/index.html.twig', ['posts' => $authorPosts]);
     }
