@@ -63,8 +63,8 @@ final class BlogController extends AbstractController
     ) {
         $authorPosts = $posts->findBy(['author' => $user], ['publishedAt' => 'DESC']);
 
-                $apiKey = 'AB81456QD3456454BD';
-                $response  = $httpClient->request('GET', 'https://my-analytics.com', ['headers' => ['Authorization' => "Bearer $apiKey"]]);
+        $apiKey = 'AB81456QD3456454BD';
+        $response = $httpClient->request('GET', 'https://my-analytics.com', ['headers' => ['Authorization' => "Bearer $apiKey"]]);
 
         return $this->render('admin/blog/index.html.twig', ['posts' => $authorPosts]);
     }
