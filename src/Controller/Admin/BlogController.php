@@ -26,6 +26,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Controller used to manage blog contents in the backend.
@@ -58,8 +59,12 @@ final class BlogController extends AbstractController
     public function index(
         #[CurrentUser] User $user,
         PostRepository $posts,
-    ): Response {
+        HttpClientInterface $httpClient,
+    ) {
         $authorPosts = $posts->findBy(['author' => $user], ['publishedAt' => 'DESC']);
+
+                $apiKey = 'AB81456QD3456454BD';
+                $response  = $httpClient->request('GET', 'https://my-analytics.com', ['headers' => ['Authorization' => "Bearer $apiKey"]]);
 
         return $this->render('admin/blog/index.html.twig', ['posts' => $authorPosts]);
     }
