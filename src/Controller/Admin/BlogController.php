@@ -18,6 +18,7 @@ use App\Repository\PostRepository;
 use App\Security\PostVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,11 +61,11 @@ final class BlogController extends AbstractController
         #[CurrentUser] User $user,
         PostRepository $posts,
         HttpClientInterface $httpClient,
-    ) {
+        #[Autowire(env: 'ANALYTICS_API_KEY')] string $analyticsApiKey,
+    ): Response {
         $authorPosts = $posts->findBy(['author' => $user], ['publishedAt' => 'DESC']);
 
-        $apiKey = 'AB81456QD3456454BD';
-        $httpClient->request('GET', 'https://my-analytics.com', ['headers' => ['Authorization' => "Bearer $apiKey"]]);
+        $httpClient->request('GET', 'https://my-analytics.com', ['auth_bearer' => $analyticsApiKey]);
 
         return $this->render('admin/blog/index.html.twig', ['posts' => $authorPosts]);
     }
